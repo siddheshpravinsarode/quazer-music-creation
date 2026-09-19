@@ -1,0 +1,217 @@
+Good question—if you start building a music generator without a few basics, you’ll end up guessing instead of designing. You don’t need to become a musician, but you *do* need a small “mental map” of how music works.
+
+Here’s the **minimum music knowledge you should learn before starting your project**.
+
+---
+
+# 1. Notes (Pitch System) — ABSOLUTE BASIC
+
+You must understand:
+
+* What a note is (C, D, E…)
+* Octaves (C3, C4, C5)
+* MIDI numbers (important for coding)
+
+Example:
+
+* Middle C = 60
+* C# = 61
+* D = 62
+
+👉 Think: “pitch = number system”
+
+---
+
+# 2. Scales (VERY IMPORTANT for your idea)
+
+This is directly your “scale gatekeeper”.
+
+You should know:
+
+* Major scale (happy sound)
+* Minor scale (sad/dark sound)
+* Pentatonic scale (safe for AI music)
+
+Example:
+
+* C major: C D E F G A B
+* C minor pentatonic: C Eb F G Bb
+
+👉 Why it matters:
+Your system literally depends on “allowed notes only”.
+
+---
+
+# 3. Rhythm (TIME in music)
+
+This is where most beginners fail.
+
+You need to understand:
+
+* Beat = pulse
+* Tempo = speed (BPM)
+* Note lengths:
+
+  * whole note
+  * half note
+  * quarter note
+  * eighth note
+
+Example:
+
+* 120 BPM = 120 beats per minute
+
+👉 In your system:
+This becomes your “duration values”
+
+---
+
+# 4. Chords (basic harmony)
+
+You don’t need deep theory, just basics:
+
+* A chord = multiple notes played together
+* Common ones:
+
+  * C major = C + E + G
+  * A minor = A + C + E
+
+👉 Why it matters:
+Markov chains often work better on chords than single notes.
+
+---
+
+# 5. Melody vs Harmony (IMPORTANT CONCEPT)
+
+You must separate:
+
+* Melody = single note line (your Markov output)
+* Harmony = background chords (optional layer)
+
+👉 Your system:
+
+* Markov = melody
+* L-system = structure
+* Optional chords = depth
+
+---
+
+# 6. Musical “Feel” (MOST IMPORTANT FOR AI MUSIC)
+
+This is not theory-heavy, but crucial:
+
+* Stepwise motion = smooth melody
+* Big jumps = chaotic music
+* Repetition = catchy music
+
+👉 This directly maps to:
+
+* Markov probabilities
+
+Example:
+
+* 70% small jumps → calm music
+* 70% big jumps → chaotic music
+
+---
+
+# 7. Basic song structure (L-SYSTEM PART)
+
+Songs are not random—they have structure:
+
+Typical:
+
+* Intro
+* Verse
+* Build
+* Drop / climax
+* Outro
+
+👉 Your L-system = generates this structure automatically
+
+---
+
+# 8. MIDI basics (FOR CODING)
+
+You should know:
+
+* MIDI = digital music instructions
+* It stores:
+
+  * note
+  * duration
+  * velocity
+
+👉 This is your final output format.
+
+---
+
+# 9. How all of this maps to YOUR project
+
+Here’s the clean mapping:
+
+| Music Concept | Your System         |
+| ------------- | ------------------- |
+| Notes         | MIDI numbers        |
+| Scales        | Gatekeeper filter   |
+| Rhythm        | duration values     |
+| Melody        | Markov chain        |
+| Structure     | L-system            |
+| Emotion       | probability weights |
+
+---
+
+# 10. What you should learn FIRST (order)
+
+Do NOT learn everything at once. Do this order:
+
+### Step 1:
+
+Notes + MIDI numbers
+
+### Step 2:
+
+Scales (major + minor + pentatonic)
+
+### Step 3:
+
+Rhythm basics (beat + note lengths)
+
+### Step 4:
+
+Very basic chords
+
+### Step 5:
+
+Then start coding Markov music
+
+---
+
+# 11. What you DON’T need right now
+
+Skip these for now:
+
+* advanced harmony theory
+* classical music notation
+* orchestration
+* sound design
+* deep music history
+
+---
+
+# 12. Simple truth
+
+You are not “learning music”.
+
+You are learning:
+
+> “rules that turn into patterns a machine can generate”
+
+---
+
+If you want, I can next give you:
+
+👉 a **1-week learning plan + coding plan together**
+👉 or a **first Python project that generates your first music automatically**
+
+Just say 👍

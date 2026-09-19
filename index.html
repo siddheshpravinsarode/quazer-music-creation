@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quasar Synth: The Algorithmic Music Lab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- WELCOME GUIDE MODAL -->
+    <div id="guide-modal-overlay" class="guide-overlay">
+        <div class="guide-modal">
+            <div class="guide-modal-header">
+                <span class="guide-title">QUASAR SYNTH  /  QUICK START GUIDE</span>
+                <button id="btn-close-guide" class="btn-secondary" style="font-size: 11px; padding: 4px 12px;">CLOSE</button>
+            </div>
+
+            <div class="guide-steps">
+                <div class="guide-step">
+                    <div class="guide-step-num">01</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">BOOT THE ENGINE</div>
+                        <div class="guide-step-desc">Click <strong>INITIALIZE SYSTEM</strong> in the top bar. Your browser needs permission to use audio. The status LED will turn green. This is required before any sound will play.</div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-num">02</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">PICK YOUR KEY &amp; SCALE</div>
+                        <div class="guide-step-desc">In the <span class="guide-tag cyan">SCALE GATEKEEPER</span> panel — choose a Root Key (e.g. C) and a Scale Mode (e.g. Minor Pentatonic). This locks all notes to only "allowed" frequencies. Click <strong>TRIGGER PITCH</strong> to hear a random note snap into the scale.</div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-num">03</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">TEACH A MELODY (OPTIONAL BUT COOL)</div>
+                        <div class="guide-step-desc">In <span class="guide-tag amber">MELODY LEARNING MACHINE</span> — type note names like <code>C4 C4 G4 G4 A4 A4 G4</code> (that's Twinkle Twinkle). Click <strong>TRAIN TRANSITIONS</strong> to teach the AI your melody's note patterns. Click <strong>PLAY SONG</strong> to hear it. The Markov chain in Step 04 will now imitate your style.</div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-num">04</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">LET THE AI COMPOSE FREELY</div>
+                        <div class="guide-step-desc">In <span class="guide-tag pink">PROBABILITY MATRIX</span> — toggle <strong>Play Melody Stream</strong> ON to start an infinite AI-generated melody. The graph shows each note (state) and the probability arrows of which note comes next. Higher numbers in the matrix = more likely that transition. Load <strong>AMBIENT</strong> or <strong>CHAOTIC</strong> presets to change character.</div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-num">05</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">GENERATE A FRACTAL SYMPHONY</div>
+                        <div class="guide-step-desc">In <span class="guide-tag violet">FRACTAL CELLULAR SYSTEM</span> — set Iterations to GEN III or IV, then click <strong>EXPAND DNA</strong> to see the recursive structure. Hit <strong>PLAY SEQUENCE</strong> to hear the full fractal layout play as a timed composition. The timeline ticker scrolls with each step.</div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-num">06</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">TRAIN THE RL SYNTH AGENT</div>
+                        <div class="guide-step-desc">In <span class="guide-tag rl">RL IMPROVISER</span> — toggle <strong>Auto-Improvise</strong> and click <strong>👍 REWARD</strong> or <strong>👎 PENALIZE</strong> on transitions. Watch the Q-table heatmap update live as the synth learns which note-flows you prefer.</div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-num">07</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">SHAPE YOUR SOUND</div>
+                        <div class="guide-step-desc">Use the oscilloscope bar at the top to change the <strong>Synth Wave</strong> (Triangle is warm, Sawtooth is harsh), adjust <strong>Cutoff</strong> to filter the brightness, and fine-tune <strong>Attack</strong> / <strong>Release</strong> timing. The waveform canvas will react live.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-footer">
+                <span style="color: var(--text-muted); font-size: 10px;">NOTE SYNTAX: Write notes as C4, G#3, Bb5 etc. Omit octave = defaults to octave 4. Separate with spaces.</span>
+                <button id="btn-start-guide" class="btn-primary" style="background: linear-gradient(135deg, var(--color-cyan), var(--color-violet));">START EXPLORING</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header>
+        <div class="logo-section">
+            <h1>QUASAR SYNTH</h1>
+            <span>THE ALGORITHMIC MUSIC LAB</span>
+        </div>
+        
+        <div class="global-controls">
+            <div class="inline-flex">
+                <span class="status-indicator" id="audio-status-led"></span>
+                <button id="btn-audio-init" class="btn-secondary">INITIALIZE SYSTEM</button>
+            </div>
+            
+            <div class="volume-slider-container">
+                <span>MASTER VOL:</span>
+                <span id="volume-val-display" class="lcd-value">-6.0 dB</span>
+                <input type="range" id="master-volume" min="0" max="0.8" step="0.05" value="0.4" style="width: 80px;">
+            </div>
+
+            <button id="btn-open-guide" class="btn-secondary" style="letter-spacing: 1px;">
+                ? GUIDE
+            </button>
+
+            <button id="btn-stop-all" class="btn-primary" style="background: linear-gradient(135deg, #ff0055, #990022); box-shadow: 0 0 10px rgba(255, 0, 85, 0.4);">
+                HALT SYSTEM
+            </button>
+        </div>
+    </header>
+
+    <!-- Global Sound Parameters Bar & Real-Time Waveform -->
+    <div class="visualizer-container">
+        <!-- Dashboard settings bar overlayed on the oscilloscope -->
+        <div style="position: absolute; top: 12px; left: 15px; right: 15px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; pointer-events: auto; z-index: 10; background: rgba(8, 4, 18, 0.75); border: 1px solid var(--card-border); padding: 8px 15px; border-radius: 8px; backdrop-filter: blur(5px);">
+            <div class="inline-flex">
+                <span style="font-size: 11px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase;">SYNTH WAVE:</span>
+                <select id="synth-type" style="width: 100px; padding: 4px 8px; font-size: 12px;">
+                    <option value="triangle">TRIANGLE</option>
+                    <option value="sine">SINE</option>
+                    <option value="sawtooth">SAWTOOTH</option>
+                    <option value="square">SQUARE</option>
+                </select>
+            </div>
+            <div class="inline-flex">
+                <span style="font-size: 11px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase;">CUTOFF:</span>
+                <span id="cutoff-val-display" class="lcd-value">2.00 kHz</span>
+                <input type="range" id="filter-cutoff" min="200" max="5000" step="50" value="2000" style="width: 100px; margin: 0;">
+            </div>
+            <div class="inline-flex" style="gap: 12px;">
+                <span style="font-size: 11px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase;">ADSR:</span>
+                <span style="font-size: 10px; color: var(--text-muted);">A: [<span id="adsr-a-val-display" class="lcd-value">80 ms</span>]<input type="range" id="adsr-a" min="0.01" max="0.5" step="0.01" value="0.08" style="width: 50px; margin: 0 4px;"></span>
+                <span style="font-size: 10px; color: var(--text-muted);">R: [<span id="adsr-r-val-display" class="lcd-value">600 ms</span>]<input type="range" id="adsr-r" min="0.1" max="1.5" step="0.05" value="0.6" style="width: 50px; margin: 0 4px;"></span>
+            </div>
+        </div>
+        <canvas id="oscilloscope-canvas"></canvas>
+    </div>
+
+    <!-- Main Grid Dashboard -->
+    <main class="dashboard-grid">
+
+        <!-- 1. THE SCALE GATEKEEPER -->
+        <section class="panel-card cyan">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <span class="step-num">01</span>
+                    <h2>SCALE GATEKEEPER</h2>
+                </div>
+                <span class="badge">FREQUENCY CONSTRAINTS</span>
+            </div>
+            <div class="how-to-box">
+                <span class="how-to-label">HOW TO USE</span>
+                Pick a <strong>Root Key</strong> and <strong>Scale Mode</strong> below to define which notes are "allowed". Then click <strong>TRIGGER PITCH</strong> to test it — any dissonant note gets snapped to the nearest correct one automatically. Toggle <strong>Auto-Play Walk</strong> to hear a continuous random melody locked to your scale.
+            </div>
+            <p class="description-text">
+                All other panels respect this constraint. Notes chosen by the Markov chain and L-System are always filtered through this grid.
+            </p>
+
+            <div class="control-group">
+                <label>Active Scale Mode</label>
+                <select id="gatekeeper-scale-select">
+                    <!-- Loaded dynamically -->
+                </select>
+            </div>
+
+            <div class="control-group">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label>Root Key</label>
+                        <select id="gatekeeper-root-select">
+                            <option value="C">C</option>
+                            <option value="C#">C#</option>
+                            <option value="D">D</option>
+                            <option value="D#">D#</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="F#">F#</option>
+                            <option value="G">G</option>
+                            <option value="G#">G#</option>
+                            <option value="A">A</option>
+                            <option value="A#">A#</option>
+                            <option value="B">B</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Octave Range</label>
+                        <div class="control-flex">
+                            <input type="number" id="gatekeeper-octave-min" min="2" max="5" value="3" style="padding: 6px;">
+                            <span style="color: var(--text-muted);">to</span>
+                            <input type="number" id="gatekeeper-octave-max" min="4" max="7" value="6" style="padding: 6px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="flex-space">
+                    <label>Auto-Play Scale Walk</label>
+                    <label class="switch">
+                        <input type="checkbox" id="gatekeeper-walk-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="piano-grid" id="gatekeeper-piano-grid">
+                <!-- Piano Keys loaded dynamically -->
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: auto;">
+                <button id="btn-gatekeeper-trigger" class="btn-primary" style="flex: 1; background: linear-gradient(135deg, #00b4d8, #00f0ff); box-shadow: var(--glow-cyan);">
+                    TRIGGER PITCH
+                </button>
+            </div>
+
+            <div class="gatekeeper-stats" style="margin-top: 10px;">
+                <div>Last Scale Freq: <span id="gk-stat-freq" class="stats-value">---</span></div>
+                <div>Status: <span id="gk-stat-status" class="stats-value">Idle</span></div>
+            </div>
+        </section>
+
+        <!-- 2. MELODY TRANSCRIPTION LEARNER -->
+        <section class="panel-card amber">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <span class="step-num" style="border-color: var(--color-amber); color: var(--color-amber);">02</span>
+                    <h2>MELODY LEARNING MACHINE</h2>
+                </div>
+                <span class="badge">SYNAPSE TRAINER</span>
+            </div>
+            <div class="how-to-box" style="border-color: rgba(255,159,0,0.3); background: rgba(255,159,0,0.04);">
+                <span class="how-to-label" style="color: var(--color-amber); border-color: rgba(255,159,0,0.4);">HOW TO USE</span>
+                Type a melody as space-separated notes like <code class="inline-code">C4 C4 G4 G4 A4</code>. Click <strong>TRAIN TRANSITIONS</strong> to extract the pattern — this rewires the Markov chain in Step 03 to imitate your melody's note-flow logic. Then click <strong>PLAY SONG</strong> to hear your exact input played back.
+            </div>
+            <p class="description-text">
+                Default input is Twinkle Twinkle Little Star. Try any tune: Happy Birthday, a riff you know, anything.
+            </p>
+
+            <div class="control-group">
+                <label>Melody Input String (Standard Notes)</label>
+                <textarea id="melody-input-raw" rows="3" style="width: 100%; background: rgba(10, 5, 20, 0.6); border: 1px solid var(--card-border); color: var(--text-primary); padding: 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; resize: none; outline: none; margin-bottom: 6px;" placeholder="e.g. C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4">C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4</textarea>
+                <span style="font-size: 10px; color: var(--text-muted); display: block;">Supports notes (C-B) with octaves (2-7). Octave 4 is default.</span>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: auto; margin-bottom: 12px;">
+                <button id="btn-melody-train" class="btn-primary" style="flex: 1.2; background: linear-gradient(135deg, #ff9f00, #cc7700); box-shadow: var(--glow-amber);">
+                    TRAIN TRANSITIONS
+                </button>
+                <button id="btn-melody-play" class="btn-secondary" style="flex: 0.8;">
+                    PLAY SONG
+                </button>
+            </div>
+
+            <div class="gatekeeper-stats" style="margin-top: 5px;">
+                <div>Unique Notes: <span id="melody-stat-unique" class="stats-value">---</span></div>
+                <div>Total Length: <span id="melody-stat-total" class="stats-value">---</span></div>
+                <div>Status: <span id="melody-stat-status" class="stats-value">Untrained</span></div>
+            </div>
+        </section>
+
+        <!-- 3. MARKOV CHAIN MELODIST -->
+        <section class="panel-card pink">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <span class="step-num" style="border-color: var(--color-pink); color: var(--color-pink);">03</span>
+                    <h2>PROBABILITY MATRIX</h2>
+                </div>
+                <span class="badge">STATE PROBABILITIES</span>
+            </div>
+            <div class="how-to-box" style="border-color: rgba(255,0,127,0.3); background: rgba(255,0,127,0.04);">
+                <span class="how-to-label" style="color: var(--color-pink); border-color: rgba(255,0,127,0.4);">HOW TO USE</span>
+                Each circle in the graph is a note-state. Arrows show transition probabilities. The table numbers are percentages — edit them to push the AI toward certain note sequences. Toggle <strong>Play Melody Stream</strong> for continuous playback, or click <strong>STEP PATH</strong> once per note.
+            </div>
+            <p class="description-text">
+                Load <strong>AMBIENT</strong> preset for smooth step-wise melodies. <strong>CHAOTIC</strong> spreads probabilities evenly — creating random leaps. Or train from Step 02 for your own personality.
+            </p>
+
+            <div class="markov-graph-container">
+                <svg id="markov-svg-graph"></svg>
+            </div>
+
+            <div class="control-group">
+                <div class="flex-space" style="margin-bottom: 6px;">
+                    <label>Matrix Preset</label>
+                    <div style="display: flex; gap: 6px;">
+                        <button id="btn-markov-preset-ambient" class="btn-secondary" style="font-size: 11px; padding: 3px 8px;">AMBIENT</button>
+                        <button id="btn-markov-preset-chaotic" class="btn-secondary" style="font-size: 11px; padding: 3px 8px;">CHAOTIC</button>
+                    </div>
+                </div>
+                
+                <div class="matrix-container">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr id="matrix-header-row">
+                                <th>From \ To</th>
+                                <!-- Loaded dynamically -->
+                            </tr>
+                        </thead>
+                        <tbody id="matrix-body">
+                            <!-- Matrix rows loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: auto;">
+                <div class="flex-space">
+                    <label>Play Melody Stream</label>
+                    <label class="switch">
+                        <input type="checkbox" id="markov-play-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button id="btn-markov-step" class="btn-primary" style="flex: 1; background: linear-gradient(135deg, #ff007f, #b5179e); box-shadow: var(--glow-pink);">
+                    STEP PATH
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. L-SYSTEM SYMPHONY BUILDER -->
+        <section class="panel-card violet">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <span class="step-num" style="border-color: var(--color-violet); color: var(--color-violet);">04</span>
+                    <h2>FRACTAL CELLULAR SYSTEM</h2>
+                </div>
+                <span class="badge">BRANCHING TREES</span>
+            </div>
+            <div class="how-to-box" style="border-color: rgba(161,36,255,0.3); background: rgba(161,36,255,0.04);">
+                <span class="how-to-label" style="color: var(--color-violet); border-color: rgba(161,36,255,0.4);">HOW TO USE</span>
+                The Axiom is the starting letter. Rules define how each letter expands. Click <strong>EXPAND DNA</strong> to see the resulting string, then click <strong>PLAY SEQUENCE</strong> to hear it as a composition. Each character maps to: <code class="inline-code">A/B/C</code>=chord, <code class="inline-code">+/-</code>=tempo, <code class="inline-code">[/]</code>=octave shift.
+            </div>
+            <p class="description-text">
+                Increase Iterations for longer, more complex structures. Start at GEN I and work up to hear how the fractal pattern grows.
+            </p>
+
+            <div class="control-group">
+                <div style="display: grid; grid-template-columns: 2fr 3fr; gap: 10px;">
+                    <div>
+                        <label>Axiom (Start)</label>
+                        <input type="text" id="lsystem-axiom" value="A">
+                    </div>
+                    <div>
+                        <label>Iterations: <span id="lsystem-iterations-val-display" class="lcd-value">GEN III</span></label>
+                        <input type="range" id="lsystem-iterations" min="1" max="5" step="1" value="3">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Replacement Rules</label>
+                <div class="rule-row">
+                    <span class="rule-key">A →</span>
+                    <input type="text" id="lsystem-rule-a" value="B+A" placeholder="Rule A" style="padding: 6px;">
+                </div>
+                <div class="rule-row">
+                    <span class="rule-key">B →</span>
+                    <input type="text" id="lsystem-rule-b" value="C-[B]" placeholder="Rule B" style="padding: 6px;">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Generated DNA String</label>
+                <div class="lsystem-output-container" id="lsystem-output-string">
+                    <!-- Expanded string loaded dynamically -->
+                </div>
+            </div>
+
+            <div class="timeline-player-container">
+                <div class="timeline-header">
+                    <span>Expanded String Timeline</span>
+                    <span>Cursor: <span id="lsystem-cursor-pos">0</span> / <span id="lsystem-total-len">0</span></span>
+                </div>
+                <div class="timeline-tape" id="lsystem-timeline-tape">
+                    <!-- Highlighted character ticker loads dynamically -->
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 15px;">
+                <button id="btn-lsystem-generate" class="btn-secondary" style="flex: 1;">
+                    EXPAND DNA
+                </button>
+                <button id="btn-lsystem-play" class="btn-primary" style="flex: 1.3; background: linear-gradient(135deg, #a124ff, #7209b7); box-shadow: var(--glow-violet);">
+                    PLAY SEQUENCE
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. REINFORCEMENT LEARNING IMPROVISER -->
+        <section class="panel-card rl">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <span class="step-num" style="border-color: var(--color-rl); color: var(--color-rl);">05</span>
+                    <h2 style="color: var(--color-rl);">RL IMPROVISER</h2>
+                </div>
+                <span class="badge">Q-LEARNING AGENT</span>
+            </div>
+            <div class="how-to-box" style="border-color: rgba(0,245,212,0.3); background: rgba(0,245,212,0.04);">
+                <span class="how-to-label" style="color: var(--color-rl); border-color: rgba(0,245,212,0.4);">HOW TO USE</span>
+                The agent learns transitions between scale notes. Use <strong>Thumbs Up 👍</strong> or <strong>Thumbs Down 👎</strong> during play to train it. Enable <strong>Algorithmic Heuristics</strong> to auto-reward specific musical traits (Consonance, Stepwise, Variety, Tonic Resolution).
+            </div>
+            <p class="description-text">
+                The heatmap below displays Q-Values. Cyan highlights the active transition. Green cells represent preferred paths; red represent penalized paths.
+            </p>
+
+            <div class="qtable-container" style="margin-bottom: 12px; position: relative;">
+                <canvas id="rl-qtable-canvas" class="rl-qtable-canvas" width="340" height="200"></canvas>
+            </div>
+
+            <div class="control-group">
+                <label>Algorithmic Heuristic Rewards</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                    <label class="checkbox-label" style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none;">
+                        <input type="checkbox" id="rl-reward-consonance" checked> Consonance
+                    </label>
+                    <label class="checkbox-label" style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none;">
+                        <input type="checkbox" id="rl-reward-stepwise" checked> Stepwise
+                    </label>
+                    <label class="checkbox-label" style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none;">
+                        <input type="checkbox" id="rl-reward-variety" checked> Variety
+                    </label>
+                    <label class="checkbox-label" style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none;">
+                        <input type="checkbox" id="rl-reward-resolution" checked> Resolution
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label>Explore Rate (ε): <span id="rl-epsilon-val-display" class="lcd-value">0.20</span></label>
+                        <input type="range" id="rl-epsilon-slider" min="0.0" max="1.0" step="0.05" value="0.20" style="margin: 4px 0;">
+                    </div>
+                    <div>
+                        <label>Learn Rate (α): <span id="rl-alpha-val-display" class="lcd-value">0.10</span></label>
+                        <input type="range" id="rl-alpha-slider" min="0.01" max="0.5" step="0.01" value="0.10" style="margin: 4px 0;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: auto; margin-bottom: 8px;">
+                <div class="flex-space" style="margin-bottom: 8px;">
+                    <label>Auto-Improvise Stream</label>
+                    <label class="switch">
+                        <input type="checkbox" id="rl-play-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button id="btn-rl-step" class="btn-primary" style="flex: 1; background: linear-gradient(135deg, #00f5d4, #00bbf9); box-shadow: 0 0 8px rgba(0, 245, 212, 0.35); color: #000; font-weight: bold;">
+                    STEP IMPROV
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button id="btn-rl-like" class="btn-secondary" style="flex: 1; border-color: var(--color-green); color: var(--color-green); font-size: 13px;">
+                    👍 REWARD (+1.5)
+                </button>
+                <button id="btn-rl-dislike" class="btn-secondary" style="flex: 1; border-color: var(--color-pink); color: var(--color-pink); font-size: 13px;">
+                    👎 PENALIZE (-1.5)
+                </button>
+            </div>
+
+            <div class="gatekeeper-stats" style="margin-top: 5px;">
+                <div style="font-size: 10px;">Reward: <span id="rl-stat-reward" class="stats-value">0.00</span></div>
+                <div style="font-size: 10px;">Decision: <span id="rl-stat-decision" class="stats-value">Exploit</span></div>
+                <div style="font-size: 10px;">Steps: <span id="rl-stat-steps" class="stats-value">0</span></div>
+            </div>
+        </section>
+
+        <!-- 6. RECORD & DOWNLOAD -->
+        <section class="panel-card green-panel">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <span class="step-num" style="border-color: var(--color-green); color: var(--color-green);">06</span>
+                    <h2 style="color: var(--color-green);">RECORD & EXPORT</h2>
+                </div>
+                <span class="badge" style="background: rgba(57,255,20,0.1); color: var(--color-green); border: 1px solid rgba(57,255,20,0.3);">AUDIO CAPTURE</span>
+            </div>
+            <div class="how-to-box" style="border-color: rgba(57,255,20,0.25); background: rgba(57,255,20,0.03);">
+                <span class="how-to-label" style="color: var(--color-green); border-color: rgba(57,255,20,0.3);">HOW TO USE</span>
+                Click <strong>START RECORDING</strong> to capture everything you play — from any panel. Hit <strong>STOP & SAVE</strong> when done and a <strong>.webm</strong> audio file will download automatically. Name your track before saving.
+            </div>
+            <p class="description-text">
+                Recording captures the live audio output — melodies, Markov streams, fractal sequences, everything mixed together in real time.
+            </p>
+
+            <div class="control-group">
+                <label>Track Name</label>
+                <input type="text" id="rec-track-name" placeholder="my-quasar-track" value="quasar-track">
+            </div>
+
+            <div class="rec-status-display" id="rec-status-display">
+                <span class="rec-dot" id="rec-dot"></span>
+                <span id="rec-status-text">IDLE — Press START to begin capturing</span>
+                <span class="rec-timer lcd-value" id="rec-timer">00:00</span>
+            </div>
+
+            <div class="rec-waveform-bar" id="rec-waveform-bar">
+                <div class="rec-waveform-inner" id="rec-waveform-inner"></div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button id="btn-rec-start" class="btn-primary" style="flex: 1; background: linear-gradient(135deg, #39ff14, #1a8a00); box-shadow: var(--glow-green); color: #000; font-weight: 800;">
+                    ● START REC
+                </button>
+                <button id="btn-rec-stop" class="btn-secondary" style="flex: 1;" disabled>
+                    ■ STOP & SAVE
+                </button>
+            </div>
+
+            <div style="margin-top: 12px;">
+                <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Recent Recordings</label>
+                <div id="rec-downloads-list" style="margin-top: 6px; display: flex; flex-direction: column; gap: 6px; max-height: 100px; overflow-y: auto;">
+                    <span style="font-size: 11px; color: var(--text-muted);">No recordings yet.</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Master Console Log -->
+    <footer class="console-container">
+        <div class="console-header">
+            <span>SYSTEM TELEMETRY</span>
+            <button id="btn-clear-console" class="btn-secondary" style="font-size: 10px; padding: 2px 8px;">CLEAR LOGS</button>
+        </div>
+        <div class="console-log" id="console-log-area">
+            <!-- Logging lines output dynamically -->
+        </div>
+    </footer>
+
+    <!-- ============================================================
+         FLOATING AI CHAT
+    ============================================================ -->
+    <button id="chat-fab" title="AI Music Assistant">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 10C8 8.9 8.9 8 10 8H14C15.1 8 16 8.9 16 10V13C16 14.1 15.1 15 14 15H13L11 17V15H10C8.9 15 8 14.1 8 13V10Z" fill="currentColor"/>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        </svg>
+        <span>AI ASSIST</span>
+    </button>
+
+    <div id="chat-panel" class="chat-panel hidden">
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <span class="chat-ai-dot"></span>
+                <span class="chat-title">QUASAR AI  /  MUSIC ASSISTANT</span>
+            </div>
+            <button id="chat-close-btn" class="btn-secondary" style="font-size: 10px; padding: 3px 8px;">✕</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages go here -->
+        </div>
+        <div class="chat-input-row">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Ask me anything about music...">
+            <button id="chat-send-btn" class="btn-primary" style="padding: 8px 14px; font-size: 12px;">SEND</button>
+        </div>
+        <div class="chat-quick-prompts">
+            <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Quick:</span>
+            <button class="chat-quick-btn" data-q="How do I create a chill lo-fi beat?">Lo-fi beat?</button>
+            <button class="chat-quick-btn" data-q="What scale should I use for a sad melody?">Sad scale?</button>
+            <button class="chat-quick-btn" data-q="How do Markov chains work in music?">Markov?</button>
+            <button class="chat-quick-btn" data-q="Give me a melody to try: something dramatic">Drama melody</button>
+        </div>
+    </div>
+
+    <!-- Script imports -->
+    <script src="audio.js"></script>
+    <script src="gatekeeper.js"></script>
+    <script src="markov.js"></script>
+    <script src="lsystem.js"></script>
+    <script src="visualizer.js"></script>
+    <script src="recorder.js"></script>
+    <script src="rl.js"></script>
+    <script src="chat.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
